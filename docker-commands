@@ -1,0 +1,203 @@
+****************************************
+***********  Docker commands   *********
+****************************************
+
+#Docker installation on ubuntu
+==============================
+#First Update Software Repositories 
+sudo apt-get update -y
+
+sudo apt-get remove docker docker-engine docker.io #optional uninstall/remove old version
+
+#install docker
+sudo apt install docker.io 
+
+#Start and Enable Docker
+sudo systemctl start docker 
+sudo systemctl enable docker
+
+#Check Docker status 
+sudo systemctl status docker
+
+#Add user to Docker gorup
+sudo usermod -aG docker username   (Logout and log back in to check if user has assigned to docker group )
+========================================================================
+
+#To check the docker version
+docker --version
+
+#Wide range of information
+docker info
+
+#Docker log path : /var/lib/docker
+
+#Docker daemon setting: /etc/docker
+
+#Display a live stream of container(s) resource usage statistics
+docker stats containerID
+
+#docker run: Create Container 
+# -it: interactive 
+docker run -it ubuntu bash 
+
+# -dt: detached 
+docker run -dt ubuntu bash
+
+#Commit Container to create Container Image
+docker commit containerID ImageName:latest
+
+#Export Container as tar file
+docker export ContainerID > XYZ.tar
+
+#Commit the tar as a new image locally
+docker import - ImageName < XYZ.tar
+
+#Save Image as tar file (Persisting Image)
+docker save -o mynginx.tar nginx
+
+#Load Image back from tar file
+docker load < mynginx.tar
+
+#Can stop container 
+docker stop containerID
+
+#Can start container
+docker start containerID
+
+#Can pause the container
+docker pause containerID
+
+#Can resume or unpause container
+docker unpause containerID
+
+#List all running containers 
+docker ps
+docker container ls
+
+#Lists all containers running/stopped/paused
+docker ps -a
+docker container ls -a
+
+#Stop ALL containers
+docker stop $(docker ps -a -q) 
+
+#Remove ALL containers
+docker rm -f $(docker ps -a -q) 
+
+#List Images
+docker images
+docker image ls
+
+#To pull the image
+docker pull ImageName
+
+#List full length Image ID 
+docker images --no-trunc 
+
+#List Image by name and tag
+docker images nginx:1.19
+
+#Inspect Image details
+docker insfect nginx:1.19
+
+#Quit from Container without stopping it
+Ctrl+p Ctrl+q
+
+# Can also filter
+docker rm -f $(sudo docker ps --before="container_id_here" -q)
+
+#Can remove ALL images
+docker rmi -f $(docker images -a -q)
+docker rmi -f $(docker images | grep "^<none>" | awk '{print $3}') # remove all <none> images
+docker rmi -f $(docker images | grep 'search_term_here' | awk '{print $1}') # i.e. 2 days ago
+docker rmi -f $(docker images | grep 'search_1\|search_2' | awk '{print $1}')
+
+# Stops only exited containers and delete only non-tagged images
+docker ps --filter 'status=Exited' -a | xargs docker stop docker images --filter "dangling=true" -q | xargs docker rmi
+
+#Show disk usage by container
+docker ps -s
+
+#Runs a new command in a running container
+docker exec -it docker-image bash
+docker exec -d docker-image touch /tmp/execWorks
+
+#Tag image to Docker Hub
+docker tag nginx:latest csramesh1/nginx:latest
+
+#Push the image with docker push command
+docker push csramesh1/nginx:latest
+
+#Docker Network
+
+#Inspect Bridge type network
+docker network inspect bridge
+
+#Connect a container to a network
+docker network 
+
+#Connect a running container to a network
+docker network connect network-name container1
+
+#Connect a container to a network when it starts
+docker run -itd --network=network-name container-name
+
+#Specify the IP address a container will use on a given network
+docker network connect --ip 10.10.36.122 network-name container-name
+
+#Docker network create
+docker network create -d bridge network-name
+
+#List networks
+docker network ls 
+
+#Display detailed information on one or more networks
+docker network inspect containerID
+
+#Remove all unused networks
+docker network prune
+
+#Remove one or more networks
+docker network rm my-network
+
+#Disconnect a container from a network
+docker network disconnect network-name container1
+
+#Docker tmpfs Mount
+docker run -d  --name tmptest --mount type=tmpfs,destination=/app nginx:latest
+docker run -d --name tmptest --tmpfs /app nginx:latest
+
+#Can create Docker Volume
+docker volume create my-vol
+
+#List docker volumes
+docker volume ls
+
+#Inspect the created volume
+docker inspect volumeName
+
+docker volume create --driver local  --opt type=tmpfs --opt device=tmpfs  --opt o=size=100m my-tmpfs
+
+docker volume create --driver local  --opt type=btrfs  --opt device=/dev/sda2  my-vol
+
+docker volume create --driver local --opt type=nfs --opt o=addr=192.168.1.1,rw  -opt device=:/path/to/dir  my-nfs
+
+docker run -d  --name devtest  --mount source=my-vol,target=/app  nginx:latest
+
+docker run -d  --name=nginxtest  -v my-vol:/app:ro nginx:latest
+
+#Docker build image 
+docker build -t apache:2.0 . #run this command in folder where Docker file exhist else replace .(dot) with dockerfile path.
+
+#Docker logs
+docker logs containerID
+
+
+
+
+
+
+
+
+
+
